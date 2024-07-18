@@ -8,7 +8,8 @@
             "preLaunchTask": "build",
             "program": "${workspaceFolder}/BackgroundRemover/bin/Debug/net8.0/BackgroundRemover.dll",
             "args": [
-                "images/me.jpg" // Cambia esto a la ruta de tu imagen de prueba
+                // "-i", "../images/me.jpg",
+                "-f", "../images"
             ],
             "cwd": "${workspaceFolder}/BackgroundRemover",
             "stopAtEntry": false,
@@ -17,12 +18,6 @@
             "launchBrowser": {
                 "enabled": false
             },
-            "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
-            },
-            "sourceFileMap": {
-                "/Views": "${workspaceFolder}/Views"
-            }
         }
     ]
 }

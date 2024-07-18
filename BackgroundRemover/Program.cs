@@ -1,36 +1,60 @@
 ﻿using System;
+using System.IO;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
 
 class Program
 {
     static async Task Main(string[] args)
     {
-        if (args.Length != 1)
+        if (args.Length < 2)
         {
-            Console.WriteLine("Usage: bgr <image_path>");
+            Console.WriteLine("Usage: bgr -i <image_path> | -f <folder_path>");
             return;
         }
 
-        var imagePath = args[0];
+        var option = args[0];
+        var path = args[1];
+
+        var builder = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
+        IConfiguration configuration = builder.Build();
 
         var serviceProvider = new ServiceCollection()
             .AddLogging(configure => configure.AddConsole())
+            .AddSingleton(configuration)
             .AddSingleton<BackgroundRemover>()
-            .AddSingleton<IConfiguration>(provider =>
-            {
-                var builder = new ConfigurationBuilder()
-                    .SetBasePath(AppContext.BaseDirectory)
-                    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                    .AddEnvironmentVariables();
-
-                return builder.Build();
-            })
             .BuildServiceProvider();
 
         var remover = serviceProvider.GetService<BackgroundRemover>();
-        await remover.RemoveBackgroundAsync(imagePath);
+
+        if (option == "-i" || option == "--image")
+        {
+            if (!File.Exists(path))
+            {
+                Console.WriteLine($"The file {path} does not exist.");
+                return;
+            }
+
+            await remover.RemoveBackgroundAsync(path);
+        }
+        else if (option == "-f" || option == "--folder")
+        {
+            if (!Directory.Exists(path))
+            {
+                Console.WriteLine($"The folder {path} does not exist.");
+                return;
+            }
+
+            await remover.RemoveBackgroundFromFolderAsync(path);
+        }
+        else
+        {
+            Console.WriteLine("Invalid option. Use -i for image or -f for folder.");
+        }
     }
 }

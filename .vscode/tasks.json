@@ -24,13 +24,14 @@
                 "--project",
                 "${workspaceFolder}/BackgroundRemover/BackgroundRemover.csproj",
                 "--",
-                "images/me.jpg"
+                "../images/me.jpg"
             ],
             "problemMatcher": "$msCompile",
             "group": {
                 "kind": "test",
                 "isDefault": true
-            }
+            },
+            "dependsOn": "build"
         }
     ]
 }
