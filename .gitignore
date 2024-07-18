@@ -399,5 +399,5 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
-BackgroundRemover/appsettings.json
-BackgroundRemover/appsettings.development.json
+**/appsettings.json
+**/appsettings.*.json
