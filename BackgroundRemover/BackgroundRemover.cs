@@ -32,7 +32,8 @@ public class BackgroundRemover
             httpClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", _key);
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/octet-stream"));
 
-            _logger.LogInformation("Removing background from image...");
+            _logger.LogInformation($"Processing image: {imagePath}");
+            Console.WriteLine($"Processing image: {imagePath}");
 
             using var stream = new FileStream(imagePath, FileMode.Open, FileAccess.Read);
 
@@ -46,11 +47,12 @@ public class BackgroundRemover
                 var image = await response.Content.ReadAsByteArrayAsync();
                 var outputPath = Path.Combine(Path.GetDirectoryName(imagePath), $"{Path.GetFileNameWithoutExtension(imagePath)}_no_bg{Path.GetExtension(imagePath)}");
                 await File.WriteAllBytesAsync(outputPath, image);
-                _logger.LogInformation($"Results saved in {outputPath}");
+                _logger.LogInformation($"Background removed: {outputPath}");
+                Console.WriteLine($"Background removed: {outputPath}");
             }
             else
             {
-                _logger.LogError($"Background removal failed: {response.StatusCode} - {response.ReasonPhrase}");
+                _logger.LogError($"Failed to remove background: {response.StatusCode} - {response.ReasonPhrase}");
             }
         }
         catch (UnauthorizedAccessException ex)
@@ -81,6 +83,7 @@ public class BackgroundRemover
                     fileInfo.Extension.Equals(".png", StringComparison.OrdinalIgnoreCase) ||
                     fileInfo.Extension.Equals(".bmp", StringComparison.OrdinalIgnoreCase))
                 {
+                    _logger.LogInformation($"Processing image: {fileInfo.FullName}");
                     await RemoveBackgroundAsync(fileInfo.FullName);
                 }
             }
@@ -98,5 +101,4 @@ public class BackgroundRemover
             _logger.LogError($"An error occurred: {ex.Message}");
         }
     }
-
 }

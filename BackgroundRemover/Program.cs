@@ -18,14 +18,25 @@ class Program
         var option = args[0];
         var path = args[1];
 
+        var exeDirectory = AppContext.BaseDirectory;
+        var appSettingsPath = Path.Combine(exeDirectory, "appsettings.json");
+
         var builder = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+            .SetBasePath(exeDirectory)
+            .AddJsonFile(appSettingsPath, optional: false, reloadOnChange: true);
 
         IConfiguration configuration = builder.Build();
 
         var serviceProvider = new ServiceCollection()
-            .AddLogging(configure => configure.AddConsole())
+            .AddLogging(configure => 
+            {
+                configure.AddSimpleConsole(options =>
+                {
+                    options.SingleLine = true;
+                    options.TimestampFormat = "hh:mm:ss ";
+                    options.IncludeScopes = false;
+                }).SetMinimumLevel(LogLevel.Warning);
+            })
             .AddSingleton(configuration)
             .AddSingleton<BackgroundRemover>()
             .BuildServiceProvider();

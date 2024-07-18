@@ -1,25 +1,27 @@
 #!/bin/bash
 
-# Nombre del proyecto
+# Project name
 PROJECT_NAME="BackgroundRemover"
 
-# Ruta al archivo DLL compilado
-DLL_PATH="$HOME/.local/share/$PROJECT_NAME/$PROJECT_NAME/bin/Debug/net8.0/$PROJECT_NAME.dll"
+# Base directory for the installation
+INSTALL_DIR="/usr/local/share/$PROJECT_NAME"
 
-# Crear directorios necesarios
-mkdir -p "$HOME/.local/share/$PROJECT_NAME"
+# Create necessary directories
+sudo mkdir -p "$INSTALL_DIR"
 
-# Copiar el proyecto a la ubicación
-cp -r . "$HOME/.local/share/$PROJECT_NAME"
+# Compile the project
+sudo dotnet publish "../BackgroundRemover/BackgroundRemover.csproj" --configuration Debug --output "$INSTALL_DIR"
 
-# Compilar el proyecto
-dotnet build "$HOME/.local/share/$PROJECT_NAME/$PROJECT_NAME/$PROJECT_NAME.csproj" --configuration Debug
+# Copy appsettings.json to the installation directory if it exists
+if [ -f "../appsettings.json" ]; then
+    sudo cp "../appsettings.json" "$INSTALL_DIR"
+fi
 
-# Crear un script ejecutable en /usr/local/bin
+# Create an executable script in /usr/local/bin
 echo "#!/bin/bash
-dotnet $DLL_PATH \"\$@\"" | sudo tee /usr/local/bin/bgr > /dev/null
+dotnet $INSTALL_DIR/$PROJECT_NAME.dll \"\$@\"" | sudo tee /usr/local/bin/bgr > /dev/null
 
-# Dar permisos de ejecución al script
+# Make the script executable
 sudo chmod +x /usr/local/bin/bgr
 
-echo "Instalación completada. Ahora puedes usar el comando 'bgr' desde cualquier ubicación."
+echo "Installation completed. You can now use the 'bgr' command from any location."
